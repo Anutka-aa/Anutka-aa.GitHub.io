@@ -1,0 +1,263 @@
+<html>
+<meta charset = "utf-8">
+	<head>
+		<style>
+			table {
+				border-spacing: 3px;
+				float : center;
+			}
+			td {
+				text-align:center;
+				padding: 5px;
+			}
+			th {
+				text-align: center;
+				padding: 5px;
+				font-weight: bold;
+			}
+			#records_place tr {
+				background:CCC;
+			}
+			#records_place tr:nth-child(2n) {
+				background:#979797;
+			}
+			span {
+				color : red;
+			}
+		</style>
+		<script type="text/javascript">	
+			
+			function record(firstname, surname, email, phone, birthdate) {
+				this.firstname=firstname;
+				this.surname=surname;
+				this.email=email;
+				this.phone=phone;
+				this.birthdate=birthdate;
+			}
+			
+			var records=[
+				new record("Alexey", "Ivanov", "buluchevskiy@icloud.com", "8-923-192-35-92", "13.11.1992"),
+				new record("Maria", "Smirnova", "maria@gmail.com", "8-923-455-23-23", "15.10.1993"),
+				new record("Anton", "Tihonov", "tihon@mail.ru", "8-923-243-54-78", "10.07.1980"),
+			];
+			
+			function time(date) {
+				return ""+date.toLocaleTimeString();
+			}
+			
+			function day(date) {
+				return "" + date.toLocaleDateString();
+			}
+					
+			function displayRecords() {
+				var text = "";
+				if (records.length>0){
+					text+= "<tr><th>Имя</th><th>Фамилия</th><th>Почта</th><th>Телефон</th><th>Дата рождения</th></tr>"
+				}
+				for (var i in records){
+					text += "<tr><td>"+records[i].firstname+"</td>";
+					text += "<td>"+records[i].surname+"</td>";
+					text += "<td>"+records[i].email+"</td>";
+					text += "<td>"+records[i].phone+"</td>";
+					text += "<td>"+records[i].birthdate+"</td></tr>"
+				}
+				document.getElementById("records_place").innerHTML = text;
+			}
+			
+			function send() {
+				var r = new record(document.getElementById("firstname").value, document.getElementById("surname").value, document.getElementById("email").value, document.getElementById("phone").value, document.getElementById("birthdate").value);
+				records.push(r);
+				displayRecords();
+			}
+			
+			function sort(compare) {
+				var l=records.length;
+				
+				for (var i=0; i<l-1; i++) {
+					var j_min = i;
+					for (var j=i+1; j<l; j++) {
+						if (compare(records[j],records[j_min])) {
+							j_min=j;
+						}
+					}
+					var r=records[j_min];
+					records[j_min] = records[i];
+					records[i]=r;
+				}
+				displayRecords();
+			}
+			
+			var comparers = [
+				function comp1(r1,r2) {
+					return r1.birthdate < r2.birthdate;
+				},
+				function comp2(r1,r2) {
+					return r1.birthdate> r2.birthdate;
+				},
+				function comp3(r1,r2) {
+					return r1.firstname < r2.firstname;
+				},
+				function comp4(r1,r2) {
+					return r1.firstname > r2.firstname;
+				}
+			];
+			
+			function findAll() {
+				var f = document.getElementById("search").value;
+				var text = "";
+				for (var i in records) {
+					if ((records[i].firstname.match(f)) || (records[i].surname.match(f)) || (records[i].birthdate.match(f)) || (records[i].email.match(f)) || (records[i].phone.match(f))) {
+							text+= "<tr><th>Имя</th><th>Фамилия</th><th>Почта</th><th>Телефон</th><th>Дата рождения</th></tr>"
+							text += "<tr><td>"+records[i].firstname+"</td>";
+							text += "<td>"+records[i].surname+"</td>";
+							text += "<td>"+records[i].email+"</td>";
+							text += "<td>"+records[i].phone+"</td>";
+							text += "<td>"+records[i].birthdate+"</td></tr>"
+					}
+				}
+				document.getElementById("records_place").innerHTML = text;
+			}
+		
+			/* ПРОВЕРКА ИМЕНИ*/
+			function isEmpty(field) {
+				return field.value.length==0;
+			}
+			
+			function isLonger20(field) {
+				return field.value.length>20;
+			}
+			
+			function containsDigits(field) {
+				var digits = "0123456789";
+				for (var i=0; i<digits.length; i++) {
+					if (field.value.indexOf(digits[i])!=-1) {
+						return true;
+					}
+				}
+				return false;
+			}
+			
+			function checkName(field) {
+				label=document.getElementById(field.id + "mes");
+				if (isEmpty(field)) {
+					label.innerHTML="Поле не заполнено!";
+					return false;
+				} else if (containsDigits(field)) {
+					label.innerHTML="Введена цифра!";
+					return false;
+				} else {
+					label.innerHTML="";
+					return true;
+				}
+			}
+			
+						
+			/* ПРОВЕРКА E-MAIL*/
+			function isCorrectEmail(field) {
+				var emailRegex=/^\w+@\w+\.\w{2,4}$/;
+				return emailRegex.test(field.value);
+			}
+			
+			function checkEmail(field) {
+				label=document.getElementById(field.id + "mes");
+				if (isEmpty(field)) {
+					label.innerHTML="Поле не заполнено";
+					return false;
+				} else if (!isCorrectEmail(field)) {
+					label.innerHTML="Некорректно введен email!";
+					return false;
+				} else {
+					label.innerHTML="";
+					return true;
+				}
+			}
+			
+			/* ПРОВЕРКА ТЕЛЕФОНА*/
+			function isCorrectPhone(field) {
+				var emailRegex=/^8-\d{3}-\d{3}-\d{2}-\d{2}$/;
+				return emailRegex.test(field.value);
+			}
+			
+			function checkPhone(field) {
+				label=document.getElementById(field.id + "mes");
+				if (isEmpty(field)) {
+					label.innerHTML="Поле не заполнено";
+					return false;
+				} else if (!isCorrectPhone(field)) {
+					label.innerHTML="Некорректно введен телефон!";
+					return false;
+				} else {
+					label.innerHTML="";
+					return true;
+				}
+			}
+			
+			/* ПРОВЕРКА ДАТЫ*/
+			function isCorrectDateValues(field) {
+				var dd=parseInt(field.value.substring(0,2));
+				var mm=parseInt(field.value.substring(3,5));
+				return 1<=dd && dd<=31 && 1<=mm && mm<=12;
+			}
+			
+			function isCorrectDate(field) {
+				var dataRegex=/^\d{2}(\/|\.)\d{2}(\/|\.)\d{4}$/;
+				return dataRegex.test(field.value);
+			}
+			
+			function checkDate(field) {
+				label=document.getElementById(field.id + "mes");
+				if (isEmpty(field)) {
+					label.innerHTML="Поле не заполненo";
+					return false;
+				} else if (!isCorrectDateValues(field)) {
+					label.innerHTML="Некорректное значение даты!";
+					return false;
+				} else if (!isCorrectDate(field)) {
+					label.innerHTML="Некорректно введена дата!";
+					return false;
+				} else {
+					label.innerHTML="";
+					return true;
+				}
+			}
+			
+			function enable() {
+				document.getElementById("send").disabled = false;
+			}
+			function disable() {
+				document.getElementById("send").disabled = true;
+			}
+			
+			function checkAll() {
+				if (checkName(document.getElementById("firstname")) &&
+				checkName(document.getElementById("surname"))&&
+				checkEmail(document.getElementById("email"))&& 
+				checkPhone(document.getElementById("phone"))&&
+				checkDate(document.getElementById("birthdate"))){
+				document.getElementById("send").disabled=false;
+				return true;
+				}
+				return false;
+			}
+			
+		</script>
+	</head>
+	<body onload="displayRecords(); disable()">
+		Имя: <input type="text" maxlength=20 id="firstname" onkeyup="checkAll()" onblur="checkAll()"/><span id="firstnamemes"></span><br>
+		Фамилия: <input type="text" maxlength=20 id="surname" onkeyup="checkAll()" onblur="checkAll()"/><span id="surnamemes"></span><br>
+		E-mail: <input type="text" id="email" onkeyup="checkAll()" onblur="checkAll()"/><span id="emailmes"></span><br>
+		Телефон: <input type="text" id="phone" onkeyup="checkAll()" onblur="checkAll()"/>	<span id="phonemes"></span><br>
+		Дата рождения: <input type="text" id="birthdate" onkeyup="checkAll()" onblur="checkAll()"/><span id="birthdatemes"></span><br>
+		<div id="toolbar">
+				<input type="button" value="Добавить запись" id="send" onclick="send()"/>
+				<input type="button" value="Поиск" onclick="findAll()"/><input type="text" id="search">
+				<input type="button" value="По дате ->" onclick="sort(comparers[0])"/>
+				<input type="button" value="По дате <-" onclick="sort(comparers[1])"/>
+				<input type="button" value="По алфавиту ->" onclick="sort(comparers[2])"/>
+				<input type="button" value="По алфавиту <-" onclick="sort(comparers[3])"/>
+				
+			</div>
+		<br>
+		<table id="records_place"></table>
+	</body>
+</html>
